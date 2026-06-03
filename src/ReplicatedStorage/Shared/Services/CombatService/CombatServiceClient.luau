@@ -13,8 +13,10 @@ local fighterConfigModule = require(fighter)
 local fighterConfig = fighterConfigModule.FighterConfig
 
 -- Modules
-local HitboxClientModule = require(RS.Shared.Modules.Game.Hitbox)
 local SettingsModule = require(RS.UI.Menus.MainGameGui.Settings)
+
+-- Remotes
+local AttackRemote = RS.Remotes.AttackRemote
 
 -- Utils
 local AnimationLoader = require(RS.Utils.AnimationLoader)
@@ -83,7 +85,7 @@ function CombatServiceClient.Attack()
 	currentAnimationTrack:Play()
 	currentAnimationTrack:GetMarkerReachedSignal("Hit"):Connect(function()
 		strikeSound:Play()
-		HitboxClientModule.CreateHitbox(combo, SettingsModule.Config.isHitboxChecked)
+		AttackRemote:FireServer(combo, SettingsModule.Config.isHitboxChecked)
 	end)
 	currentAnimationTrack.Stopped:Wait()
 	CombatServiceClient.Config.IsAttacking = false

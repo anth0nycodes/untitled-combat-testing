@@ -12,6 +12,7 @@ type FighterConfigType = {
 	},
 	MaxComboCount: number,
 	HitboxType: "Box" | "Weapon" | "Projectile",
+	CreateHitbox: (player: Player, isHitboxChecked: boolean) -> { Humanoid }?,
 }
 
 export type ConfigType = {
