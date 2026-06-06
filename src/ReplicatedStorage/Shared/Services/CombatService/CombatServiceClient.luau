@@ -7,7 +7,7 @@ local CombatServiceClient = {} :: Types.CombatServiceClientType
 local RS = game:GetService("ReplicatedStorage")
 
 -- Modules
-local SettingsModule = require(RS.UI.Menus.MainGameGui.Settings)
+local HitboxClientModule = require(RS.Shared.Modules.Game.Hitbox)
 local FighterConfigModule = require(RS.Utils.FighterConfig)
 
 -- Fighter Config
@@ -15,23 +15,32 @@ local fighterConfig = FighterConfigModule.get()
 
 -- Remotes
 local AttackRemote = RS.Remotes.AttackRemote
+local BlockRemote = RS.Remotes.BlockRemote
 
 -- Utils
 local AnimationLoader = require(RS.Utils.AnimationLoader)
 
 -- Combat Actions
 local m1Action = RS.Inputs.Combat.M1
+local blockAction = RS.Inputs.Combat.Block
+
+-- Block Animation
+local blockTrack: AnimationTrack
 
 -- Module Config
 CombatServiceClient.Config = {
 	Combo = 1,
 	ComboResetTime = 0.80,
 	IsAttacking = false,
+	IsBlocking = false,
+	BlockMeter = 100,
+	IsStunned = false,
 	ComboBreakTime = 0,
 	LastAttackTime = 0,
 }
 
 function CombatServiceClient.Init()
+	AnimationLoader.Init()
 	CombatServiceClient.BindEvents()
 end
 
@@ -46,6 +55,17 @@ function CombatServiceClient.BindEvents()
 		end
 
 		CombatServiceClient.Attack()
+	end)
+
+	blockAction.Pressed:Connect(function()
+		CombatServiceClient.Block()
+	end)
+
+	blockAction.Released:Connect(function()
+		CombatServiceClient.Config.IsBlocking = false
+		if blockTrack then
+			blockTrack:Stop()
+		end
 	end)
 end
 
@@ -75,7 +95,7 @@ function CombatServiceClient.Attack()
 	CombatServiceClient.Config.LastAttackTime = currentTime
 
 	local currentAnimationTrack =
-		AnimationLoader.LoadAnimation(fighterConfig.Animations[CombatServiceClient.Config.Combo])
+		AnimationLoader.LoadAnimation(fighterConfig.M1Animations[CombatServiceClient.Config.Combo])
 	local strikeSound = if CombatServiceClient.Config.Combo == fighterConfig.MaxComboCount
 		then fighterConfig.SFX.Heavy
 		else fighterConfig.SFX.Normal
@@ -83,10 +103,23 @@ function CombatServiceClient.Attack()
 	currentAnimationTrack:Play()
 	currentAnimationTrack:GetMarkerReachedSignal("Hit"):Connect(function()
 		strikeSound:Play()
-		AttackRemote:FireServer(combo, SettingsModule.Config.isHitboxChecked)
+		HitboxClientModule.CreateHitbox()
+		AttackRemote:FireServer(combo)
 	end)
 	currentAnimationTrack.Stopped:Wait()
 	CombatServiceClient.Config.IsAttacking = false
+end
+
+function CombatServiceClient.Block()
+	task.wait(0.0375) -- Small delay to prevent blocking immediately after attacking
+	if not blockAction:GetState() then -- Bail if player released block during startup delay
+		return
+	end
+	print("Block")
+	blockTrack = AnimationLoader.LoadAnimation(fighterConfig.BlockAnimation)
+	CombatServiceClient.Config.IsBlocking = true
+	blockTrack:Play()
+	BlockRemote:FireServer()
 end
 
 return CombatServiceClient
