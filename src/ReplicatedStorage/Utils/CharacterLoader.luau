@@ -7,10 +7,10 @@ local Players = game:GetService("Players")
 -- Player
 local player = Players.LocalPlayer
 
-function CharacterLoader.Init(callback: (character: Model, humanoid: Humanoid) -> ())
-	local function onCharacterAdded(newCharacter: Model)
-		local humanoid = newCharacter:WaitForChild("Humanoid") :: Humanoid
-		callback(newCharacter, humanoid)
+function CharacterLoader.Init(callback: (newCharacter: Model, newHumanoid: Humanoid) -> ())
+	local function onCharacterAdded(character: Model)
+		local humanoid = character:WaitForChild("Humanoid") :: Humanoid
+		callback(character, humanoid)
 	end
 
 	if player.Character then
