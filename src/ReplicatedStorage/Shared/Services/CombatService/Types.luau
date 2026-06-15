@@ -7,7 +7,7 @@ type Config = {
 	ComboBreakTime: number,
 	LastAttackTime: number,
 	CurrentAnimationTrack: AnimationTrack?,
-	CurrentCanCancelAt: number,
+	CanCancel: boolean,
 	AttackId: number,
 }
 

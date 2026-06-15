@@ -17,13 +17,11 @@ local BlockBreakSFX = RS.Assets.SFX.Fighters.Brawler.BlockBreak
 Config.FighterConfig = {
 	Animations = {
 		M1Animations = {
-			{ Animation = BrawlerAnimations.M1One, HitAt = { 0.14 }, CanCancelAt = 0.28 },
-			{ Animation = BrawlerAnimations.M1Two, HitAt = { 0.16 }, CanCancelAt = 0.32 },
+			{ Animation = BrawlerAnimations.M1One },
+			{ Animation = BrawlerAnimations.M1Two },
 			{
 				Animation = BrawlerAnimations.M1Three,
-				HitAt = { 0.28 },
-				CanCancelAt = 0.35,
-				Lunge = { LungeAt = { 0.28 }, LungeForce = 18 },
+				Lunge = { LungeForce = 18 },
 			},
 		},
 		BlockAnimation = BrawlerAnimations.Block,

@@ -20,13 +20,11 @@ local BlockBreakSFX = RS.Assets.SFX.Fighters.Slayer.BlockBreak
 Config.FighterConfig = {
 	Animations = {
 		M1Animations = {
-			{ Animation = SlayerAnimations.M1One, HitAt = { 0.15 }, CanCancelAt = 0.30 },
-			{ Animation = SlayerAnimations.M1Two, HitAt = { 0.12 }, CanCancelAt = 0.27 },
+			{ Animation = SlayerAnimations.M1One },
+			{ Animation = SlayerAnimations.M1Two },
 			{
 				Animation = SlayerAnimations.M1Three,
-				HitAt = { 0.18 },
-				CanCancelAt = 0.35,
-				Lunge = { LungeAt = { 0.28 }, LungeForce = 18 },
+				Lunge = { LungeForce = 18 },
 			},
 		},
 		BlockAnimation = SlayerAnimations.Block,
