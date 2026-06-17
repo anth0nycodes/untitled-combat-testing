@@ -36,11 +36,12 @@ type FighterConfigType = {
 		BlockBreakDuration: number,
 		ParryDuration: number,
 	},
-	WalkSpeed: { Base: number, Attacking: number, Blocking: number, BlockBroken: number },
+	WalkSpeed: { Base: number, Attacking: number, Blocking: number, Parried: number, BlockBroken: number },
 	SFX: {
 		NormalAttack: Sound,
 		HeavyAttack: Sound,
 		BlockBreak: Sound,
+		Parry: Sound,
 	},
 	Damage: {
 		Normal: number,

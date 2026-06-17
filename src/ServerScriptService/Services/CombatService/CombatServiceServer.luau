@@ -23,6 +23,8 @@ local CombatServiceConstants = require(RS.Shared.Services.CombatService.Constant
 -- active regen tasks to prevent multiple regen tasks from being created for the same character
 local activeRegenTasks: { [Model]: boolean } = {}
 
+local blockStartTimes: { [Model]: number } = {}
+
 -- should regenerate 10%/sec
 local function startBlockRegen(character: Model)
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -57,9 +59,11 @@ end
 
 local function setInitialPlayerCombatAttributes(player: Player)
 	player.CharacterAdded:Connect(function(character)
-		character:SetAttribute("IsStunned", false)
 		character:SetAttribute("IsBlocking", false)
 		character:SetAttribute("BlockMeter", 100)
+		character:SetAttribute("IsStunned", false)
+		character:SetAttribute("IsParryStunned", false)
+		character:SetAttribute("IsBlockBroken", false)
 	end)
 end
 
@@ -78,21 +82,47 @@ local function getDamage(combo: number, hitHumanoid: Humanoid)
 	return DAMAGE * DAMAGE_REDUCTION_FACTOR
 end
 
-local function processHit(combo: number, hitHumanoid: Humanoid)
+local function processHit(combo: number, attackerCharacter: Model, hitHumanoid: Humanoid)
 	local hitCharacter = hitHumanoid.Parent :: Model
 	local DAMAGE = getDamage(combo, hitHumanoid)
 	local NEW_BLOCK_METER_VALUE =
 		math.max(0, hitCharacter:GetAttribute("BlockMeter") :: number - CombatServiceConstants.BLOCK_DRAIN_AMOUNT)
 
-	if hitCharacter:GetAttribute("IsBlocking") then -- if the hit character is blocking, reduce their block meter
+	if hitCharacter:GetAttribute("IsBlocking") then -- if the defender is blocking, reduce their block meter
+		local attackerRootPart = attackerCharacter:FindFirstChild("HumanoidRootPart") :: BasePart
+		local defenderRootPart = hitCharacter:FindFirstChild("HumanoidRootPart") :: BasePart
+		local directionToAttacker = (attackerRootPart.Position - defenderRootPart.Position).Unit
+		local defenderLookVector = defenderRootPart.CFrame.LookVector
+		local frontalDot = defenderLookVector:Dot(directionToAttacker)
+
+		if frontalDot > 0.25 then -- if the defender is facing the attacker (within 150°), they can parry
+			if
+				blockStartTimes[hitCharacter]
+				and os.clock() - blockStartTimes[hitCharacter] <= CombatServiceConstants.PARRY_WINDOW
+			then
+				local parrySFX = fighterConfig.SFX.Parry:Clone()
+				parrySFX.Parent = defenderRootPart
+				attackerCharacter:SetAttribute("IsStunned", true)
+				attackerCharacter:SetAttribute("IsParryStunned", true)
+				parrySFX:Play()
+				task.delay(fighterConfig.Stuns.ParryDuration, function()
+					attackerCharacter:SetAttribute("IsStunned", false)
+					attackerCharacter:SetAttribute("IsParryStunned", false)
+				end)
+				return
+			end
+		end
+
 		hitCharacter:SetAttribute("BlockMeter", NEW_BLOCK_METER_VALUE)
 	end
 
-	if hitCharacter:GetAttribute("BlockMeter") == 0 and not hitCharacter:GetAttribute("IsStunned") then -- if the hit character's block meter is empty, stun them and break their block
+	if hitCharacter:GetAttribute("BlockMeter") == 0 and not hitCharacter:GetAttribute("IsStunned") then -- if the defender's block meter is empty, stun them and break their block
 		hitCharacter:SetAttribute("IsBlocking", false)
 		hitCharacter:SetAttribute("IsStunned", true)
+		hitCharacter:SetAttribute("IsBlockBroken", true)
 		task.delay(fighterConfig.Stuns.BlockBreakDuration, function()
 			hitCharacter:SetAttribute("IsStunned", false)
+			hitCharacter:SetAttribute("IsBlockBroken", false)
 			startBlockRegen(hitCharacter)
 		end)
 	end
@@ -121,7 +151,7 @@ function CombatServiceServer.Init()
 			if humanoid.Health <= 0 then
 				continue
 			end
-			processHit(combo, humanoid)
+			processHit(combo, character, humanoid)
 		end
 	end)
 
@@ -131,7 +161,14 @@ function CombatServiceServer.Init()
 		if isBlocking and character:GetAttribute("BlockMeter") < CombatServiceConstants.BLOCK_DRAIN_AMOUNT then -- if the player's block meter is too low, they shouldn't be able to block
 			return
 		end
+
 		character:SetAttribute("IsBlocking", isBlocking)
+
+		if isBlocking then
+			blockStartTimes[character] = os.clock()
+		else
+			blockStartTimes[character] = nil
+		end
 
 		if regenerateBlock then
 			startBlockRegen(character)

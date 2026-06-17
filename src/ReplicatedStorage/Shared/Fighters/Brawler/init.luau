@@ -13,6 +13,7 @@ local BrawlerAnimations = RS.Assets.Animations.Brawler
 local NormalStrikeSFX = RS.Assets.SFX.Fighters.Brawler.Normal
 local HeavyStrikeSFX = RS.Assets.SFX.Fighters.Brawler.Heavy
 local BlockBreakSFX = RS.Assets.SFX.Fighters.Brawler.BlockBreak
+local ParrySFX = RS.Assets.SFX.Fighters.Brawler.Parry
 
 Config.FighterConfig = {
 	Animations = {
@@ -31,10 +32,10 @@ Config.FighterConfig = {
 	},
 	Stuns = {
 		BlockBreakDuration = 2,
-		ParryDuration = 2,
+		ParryDuration = 1,
 	},
-	WalkSpeed = { Base = 16, Attacking = 12, Blocking = 8, BlockBroken = 2 },
-	SFX = { NormalAttack = NormalStrikeSFX, HeavyAttack = HeavyStrikeSFX, BlockBreak = BlockBreakSFX },
+	WalkSpeed = { Base = 16, Attacking = 12, Blocking = 8, Parried = 2, BlockBroken = 1.5 },
+	SFX = { NormalAttack = NormalStrikeSFX, HeavyAttack = HeavyStrikeSFX, BlockBreak = BlockBreakSFX, Parry = ParrySFX },
 	Damage = { Normal = 3, Heavy = 8 },
 	MaxComboCount = 3,
 	Hitbox = {

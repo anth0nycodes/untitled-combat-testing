@@ -60,18 +60,31 @@ local function onCharacterAdded(newCharacter: Model, newHumanoid: Humanoid)
 
 	character:GetAttributeChangedSignal("IsStunned"):Connect(function()
 		if character:GetAttribute("IsStunned") then
-			local blockBreakSFX = fighterConfig.SFX.BlockBreak:Clone()
-			blockBreakSFX.Parent = humanoidRootPart
-			if blockTrack then
-				blockTrack:Stop()
+			if character:GetAttribute("IsBlockBroken") then
+				local blockBreakSFX = fighterConfig.SFX.BlockBreak:Clone()
+				blockBreakSFX.Parent = humanoidRootPart
+				if blockTrack then
+					blockTrack:Stop()
+				end
+				local blockBreakTrack = AnimationLoader.LoadAnimation(fighterConfig.Animations.BlockBreakAnimation)
+				blockBreakTrack:Play()
+				blockBreakTrack:AdjustSpeed(2)
+				blockBreakSFX:Play()
+				humanoid.WalkSpeed = fighterConfig.WalkSpeed.BlockBroken
+				character:GetAttributeChangedSignal("IsBlockBroken"):Wait()
+				blockBreakTrack:Stop()
+				humanoid.WalkSpeed = fighterConfig.WalkSpeed.Base
+			elseif character:GetAttribute("IsParryStunned") then
+				if CombatServiceClient.Config.CurrentAnimationTrack then
+					CombatServiceClient.Config.CurrentAnimationTrack:Stop()
+				end
+				local parryStunTrack = AnimationLoader.LoadAnimation(fighterConfig.Animations.ParryStunAnimation)
+				parryStunTrack:Play()
+				humanoid.WalkSpeed = fighterConfig.WalkSpeed.Parried
+				character:GetAttributeChangedSignal("IsParryStunned"):Wait()
+				parryStunTrack:Stop()
+				humanoid.WalkSpeed = fighterConfig.WalkSpeed.Base
 			end
-			local blockBreakTrack = AnimationLoader.LoadAnimation(fighterConfig.Animations.BlockBreakAnimation)
-			blockBreakTrack:Play()
-			blockBreakTrack:AdjustSpeed(2)
-			blockBreakSFX:Play()
-			humanoid.WalkSpeed = fighterConfig.WalkSpeed.BlockBroken
-			blockBreakTrack.Stopped:Wait()
-			humanoid.WalkSpeed = fighterConfig.WalkSpeed.Base
 		end
 	end)
 end
