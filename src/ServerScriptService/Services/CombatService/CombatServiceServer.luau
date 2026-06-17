@@ -84,7 +84,6 @@ end
 
 local function processHit(combo: number, attackerCharacter: Model, hitHumanoid: Humanoid)
 	local hitCharacter = hitHumanoid.Parent :: Model
-	local DAMAGE = getDamage(combo, hitHumanoid)
 	local NEW_BLOCK_METER_VALUE =
 		math.max(0, hitCharacter:GetAttribute("BlockMeter") :: number - CombatServiceConstants.BLOCK_DRAIN_AMOUNT)
 
@@ -95,7 +94,7 @@ local function processHit(combo: number, attackerCharacter: Model, hitHumanoid: 
 		local defenderLookVector = defenderRootPart.CFrame.LookVector
 		local frontalDot = defenderLookVector:Dot(directionToAttacker)
 
-		if frontalDot > 0.25 then -- if the defender is facing the attacker (within 150°), they can parry
+		if frontalDot > CombatServiceConstants.BLOCK_ANGLE_THRESHOLD then -- if the defender is facing the attacker within the threshold
 			if
 				blockStartTimes[hitCharacter]
 				and os.clock() - blockStartTimes[hitCharacter] <= CombatServiceConstants.PARRY_WINDOW
@@ -110,10 +109,12 @@ local function processHit(combo: number, attackerCharacter: Model, hitHumanoid: 
 					attackerCharacter:SetAttribute("IsParryStunned", false)
 				end)
 				return
+			else
+				hitCharacter:SetAttribute("BlockMeter", NEW_BLOCK_METER_VALUE)
 			end
+		else
+			hitCharacter:SetAttribute("IsBlocking", false)
 		end
-
-		hitCharacter:SetAttribute("BlockMeter", NEW_BLOCK_METER_VALUE)
 	end
 
 	if hitCharacter:GetAttribute("BlockMeter") == 0 and not hitCharacter:GetAttribute("IsStunned") then -- if the defender's block meter is empty, stun them and break their block
@@ -127,6 +128,7 @@ local function processHit(combo: number, attackerCharacter: Model, hitHumanoid: 
 		end)
 	end
 
+	local DAMAGE = getDamage(combo, hitHumanoid)
 	hitHumanoid:TakeDamage(DAMAGE)
 end
 
