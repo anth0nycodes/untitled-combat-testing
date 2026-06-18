@@ -146,7 +146,7 @@ function CombatServiceServer.Init()
 
 	SFXRemote.OnServerEvent:Connect(function(player: Player, sfxName: string)
 		local character = player.Character or player.CharacterAdded:Wait()
-		local humanoidRootPart = character:FindFirstChild("HumanoidRootPart") :: BasePart
+		local attackerRootPart = character:FindFirstChild("HumanoidRootPart") :: BasePart
 		local SFX: Sound
 		if sfxName == "Normal" then
 			SFX = fighterConfig.SFX.NormalAttack:Clone()
@@ -156,7 +156,7 @@ function CombatServiceServer.Init()
 		if not SFX then
 			return
 		end
-		SFX.Parent = humanoidRootPart
+		SFX.Parent = attackerRootPart
 		SFX:Play()
 	end)
 
