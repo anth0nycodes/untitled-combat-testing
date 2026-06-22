@@ -1,22 +1,26 @@
 --!strict
--- Types
-local Types = require(script.Parent.Types)
-local CombatServiceClient = {} :: Types.CombatServiceClientType
-
 -- Game Services
 local RS = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+-- Types
+local CombatServiceClientTypes = require(script.Parent.Types)
+local FighterConfigTypes = require(RS.Shared.Fighters.Types)
+local CombatServiceClient = {} :: CombatServiceClientTypes.CombatServiceClientType
 
 -- Modules
 local HitboxClientModule = require(RS.Shared.Modules.Game.Hitbox)
 local FighterConfigModule = require(RS.Utils.FighterConfig)
 
 -- Player
+local player = Players.LocalPlayer
+assert(player, "Player is not defined")
 local character: Model
 local humanoid: Humanoid
 local humanoidRootPart: BasePart
 
 -- Fighter Config
-local fighterConfig = FighterConfigModule.get()
+local fighterConfig: FighterConfigTypes.FighterConfigType
 
 -- Remotes
 local AttackRemote = RS.Remotes.AttackRemote
@@ -51,6 +55,8 @@ CombatServiceClient.Config = {
 }
 
 local function onCharacterAdded(newCharacter: Model, newHumanoid: Humanoid)
+	local fighterName = player:GetAttribute("SelectedFighter")
+	fighterConfig = FighterConfigModule.get(fighterName)
 	character = newCharacter
 	humanoid = newHumanoid
 	humanoidRootPart = character:WaitForChild("HumanoidRootPart") :: BasePart
@@ -190,7 +196,7 @@ function CombatServiceClient.Attack()
 
 		local sfxEvent = if combo == fighterConfig.MaxComboCount then "Heavy" else "Normal"
 		SFXRemote:FireServer(sfxEvent)
-		HitboxClientModule.CreateHitbox(humanoidRootPart)
+		HitboxClientModule.CreateHitbox(player, humanoidRootPart)
 		AttackRemote:FireServer(combo)
 	end)
 

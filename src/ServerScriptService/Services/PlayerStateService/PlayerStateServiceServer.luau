@@ -7,6 +7,9 @@ local RS = game:GetService("ReplicatedStorage")
 
 -- Remotes
 local PlayerRemote = RS.Remotes.PlayerRemote :: RemoteEvent
+local FighterSelectionRemote = RS.Remotes.FighterSelectionRemote :: RemoteEvent
+
+local loadingCharacter: { [Player]: boolean } = {}
 
 function PlayerStateServiceServer.Init()
 	Players.PlayerAdded:Connect(function(player: Player)
@@ -42,6 +45,20 @@ function PlayerStateServiceServer.Init()
 			humanoidRootPart.Anchored = false
 			player:SetAttribute("IsInMainMenu", false)
 		end
+	end)
+
+	FighterSelectionRemote.OnServerEvent:Connect(function(player: Player, fighterName: string)
+		if loadingCharacter[player] then
+			return
+		end
+		if not RS.Shared.Fighters:FindFirstChild(fighterName) then
+			warn("Invalid fighter name: " .. fighterName)
+			return
+		end
+		loadingCharacter[player] = true
+		player:SetAttribute("SelectedFighter", fighterName)
+		player:LoadCharacterAsync()
+		loadingCharacter[player] = nil
 	end)
 end
 
