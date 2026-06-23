@@ -7,3 +7,4 @@ realm = "shared"
 [dependencies]
 Wire = "elentium/wire@0.0.4"
 DataService = "leifstout/dataservice@1.0.0"
+Janitor = "howmanysmall/janitor@1.18.3"
