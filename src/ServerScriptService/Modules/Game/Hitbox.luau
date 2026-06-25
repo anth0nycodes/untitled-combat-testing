@@ -13,11 +13,11 @@ local FighterConfigModule = require(RS.Utils.FighterConfig)
 function HitboxServerModule.CreateHitbox(player: Player)
 	local fighterName = DataService:get(player, { "selectedFighter" }) :: string
 	local fighterConfig = FighterConfigModule.get(fighterName)
+	local hitHumanoids: { Humanoid } = {}
 	local character = player.Character
 	if not character then
-		return {} :: { Humanoid }
+		return hitHumanoids
 	end
-	local hitHumanoids: { Humanoid } = {}
 
 	if fighterConfig.Hitbox.HitboxType == "Box" then
 		local humanoidRootPart = character:FindFirstChild("HumanoidRootPart") :: BasePart
