@@ -25,7 +25,11 @@ local function setupPlayer(player: Player)
 
 	player:SetAttribute("IsInMainMenu", true)
 
-	local character = player.Character or player.CharacterAdded:Wait()
+	local character = player.Character
+	if not character then
+		return
+	end
+
 	local humanoidRootPart = character:FindFirstChild("HumanoidRootPart") :: BasePart
 	if humanoidRootPart then
 		humanoidRootPart.Anchored = true
@@ -70,7 +74,10 @@ function PlayerStateServiceServer.Init()
 	end)
 
 	PlayerRemote.OnServerEvent:Connect(function(player: Player, event: string)
-		local character = player.Character or player.CharacterAdded:Wait()
+		local character = player.Character
+		if not character then
+			return
+		end
 
 		local humanoidRootPart = character:FindFirstChild("HumanoidRootPart") :: BasePart
 		if not humanoidRootPart then
@@ -88,7 +95,11 @@ function PlayerStateServiceServer.Init()
 	end)
 
 	FighterSelectionRemote.OnServerEvent:Connect(function(player: Player, fighterName: string)
-		local character = player.Character or player.CharacterAdded:Wait()
+		local character = player.Character
+		if not character then
+			return
+		end
+
 		local currentSelectedFighter = DataService:get(player, { "selectedFighter" })
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
 		if not humanoid then

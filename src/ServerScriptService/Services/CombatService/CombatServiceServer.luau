@@ -143,7 +143,7 @@ local function processHit(player: Player, combo: number, attackerCharacter: Mode
 					attackerCharacter:SetAttribute("IsStunned", false)
 					attackerCharacter:SetAttribute("IsParryStunned", false)
 				end)
-				task.delay(parrySFX.TimeLength, function()
+				parrySFX.Ended:Once(function()
 					parrySFX:Destroy()
 				end)
 				return
@@ -153,7 +153,7 @@ local function processHit(player: Player, combo: number, attackerCharacter: Mode
 				blockDrainSFX.Parent = defenderRootPart
 				hitCharacter:SetAttribute("BlockMeter", NEW_BLOCK_METER_VALUE)
 				blockDrainSFX:Play()
-				task.delay(blockDrainSFX.TimeLength, function()
+				blockDrainSFX.Ended:Once(function()
 					blockDrainSFX:Destroy()
 				end)
 			end
@@ -172,7 +172,7 @@ local function processHit(player: Player, combo: number, attackerCharacter: Mode
 			hitCharacter:SetAttribute("IsBlockBroken", false)
 			startBlockRegen(hitCharacter)
 		end)
-		task.delay(blockBreakSFX.TimeLength, function()
+		blockBreakSFX.Ended:Once(function()
 			blockBreakSFX:Destroy()
 		end)
 	end
@@ -181,7 +181,7 @@ local function processHit(player: Player, combo: number, attackerCharacter: Mode
 		local impactSFX = attackerFighterConfig.SFX.Impact:Clone()
 		impactSFX.Parent = defenderRootPart
 		impactSFX:Play()
-		task.delay(impactSFX.TimeLength, function()
+		impactSFX.Ended:Once(function()
 			impactSFX:Destroy()
 		end)
 	end
@@ -234,7 +234,11 @@ function CombatServiceServer.Init()
 
 	SFXRemote.OnServerEvent:Connect(function(player: Player, sfxName: string)
 		local fighterConfig = getPlayerFighterConfig(player)
-		local character = player.Character or player.CharacterAdded:Wait()
+		local character = player.Character
+		if not character then
+			return
+		end
+
 		local attackerRootPart = character:FindFirstChild("HumanoidRootPart") :: BasePart
 		local SFX: Sound
 		if sfxName == "Normal" then
@@ -247,13 +251,16 @@ function CombatServiceServer.Init()
 		end
 		SFX.Parent = attackerRootPart
 		SFX:Play()
-		task.delay(SFX.TimeLength, function()
+		SFX.Ended:Once(function()
 			SFX:Destroy()
 		end)
 	end)
 
 	AttackRemote.OnServerEvent:Connect(function(player: Player, combo: number)
-		local character = player.Character or player.CharacterAdded:Wait()
+		local character = player.Character
+		if not character then
+			return
+		end
 
 		if character:GetAttribute("IsStunned") then -- if the attacker is stunned, they shouldn't be able to attack
 			return
@@ -274,7 +281,10 @@ function CombatServiceServer.Init()
 	end)
 
 	BlockRemote.OnServerEvent:Connect(function(player: Player, isBlocking: boolean)
-		local character = player.Character or player.CharacterAdded:Wait()
+		local character = player.Character
+		if not character then
+			return
+		end
 		-- the isBlocking check is necessary to prevent exploiters from manually sending `true` to the server despite their meter being too low to block
 		if isBlocking and character:GetAttribute("BlockMeter") < CombatServiceConstants.BLOCK_DRAIN_AMOUNT then -- if the player's block meter is too low, they shouldn't be able to block
 			return

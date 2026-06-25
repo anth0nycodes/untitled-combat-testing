@@ -13,7 +13,10 @@ local FighterConfigModule = require(RS.Utils.FighterConfig)
 function HitboxServerModule.CreateHitbox(player: Player)
 	local fighterName = DataService:get(player, { "selectedFighter" }) :: string
 	local fighterConfig = FighterConfigModule.get(fighterName)
-	local character = player.Character or player.CharacterAdded:Wait()
+	local character = player.Character
+	if not character then
+		return {} :: { Humanoid }
+	end
 	local hitHumanoids: { Humanoid } = {}
 
 	if fighterConfig.Hitbox.HitboxType == "Box" then
