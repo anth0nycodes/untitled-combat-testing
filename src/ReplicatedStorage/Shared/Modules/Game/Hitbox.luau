@@ -7,11 +7,11 @@ local RS = game:GetService("ReplicatedStorage")
 -- Packages
 local DataService = require(RS.Packages.DataService).client
 
--- Modules
-local FighterConfigModule = require(RS.Utils.FighterConfig)
+-- Utils
+local FighterConfig = require(RS.Shared.Utils.FighterConfig)
 
 function HitboxClientModule.CreateHitbox(humanoidRootPart: BasePart)
-	local fighterConfig = FighterConfigModule.get()
+	local fighterConfig = FighterConfig.get()
 	local isHitboxChecked: boolean = DataService:get({ "settings", "isHitboxChecked" })
 
 	if fighterConfig.Hitbox.HitboxType == "Box" then

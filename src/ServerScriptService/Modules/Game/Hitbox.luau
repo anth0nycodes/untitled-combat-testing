@@ -7,12 +7,12 @@ local RS = game:GetService("ReplicatedStorage")
 -- Packages
 local DataService = require(RS.Packages.DataService).server
 
--- Modules
-local FighterConfigModule = require(RS.Utils.FighterConfig)
+-- Utils
+local FighterConfig = require(RS.Shared.Utils.FighterConfig)
 
 function HitboxServerModule.CreateHitbox(player: Player)
 	local fighterName = DataService:get(player, { "selectedFighter" }) :: string
-	local fighterConfig = FighterConfigModule.get(fighterName)
+	local fighterConfig = FighterConfig.get(fighterName)
 	local hitHumanoids: { Humanoid } = {}
 	local character = player.Character
 	if not character then
