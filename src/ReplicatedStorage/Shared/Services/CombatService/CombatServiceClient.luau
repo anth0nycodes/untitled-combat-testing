@@ -9,7 +9,6 @@ local CombatServiceClient = {}
 
 -- Modules
 local HitboxClientModule = require(RS.Shared.Modules.Game.Hitbox)
-local FighterConfigModule = require(RS.Utils.FighterConfig)
 
 -- Player
 local player = Players.LocalPlayer
@@ -25,6 +24,7 @@ local fighterConfig: FighterConfigTypes.FighterConfigType
 local AnimationLoader = require(RS.Utils.AnimationLoader)
 local CharacterLoader = require(RS.Utils.CharacterLoader)
 local ForceManager = require(RS.Utils.ForceManager)
+local FighterConfig = require(RS.Shared.Utils.FighterConfig)
 
 -- Combat Actions
 local m1Action = RS.Inputs.Combat.M1
@@ -41,7 +41,7 @@ local Networker = require(RS.Packages.Networker)
 
 function CombatServiceClient.Init(self: CombatServiceClient)
 	local function onCharacterAdded(newCharacter: Model, newHumanoid: Humanoid)
-		fighterConfig = FighterConfigModule.get()
+		fighterConfig = FighterConfig.get()
 		character = newCharacter
 		humanoid = newHumanoid
 		humanoidRootPart = character:WaitForChild("HumanoidRootPart") :: BasePart

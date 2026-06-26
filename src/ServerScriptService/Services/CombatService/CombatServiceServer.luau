@@ -8,26 +8,25 @@ local SSS = game:GetService("ServerScriptService")
 
 -- Modules
 local HitboxServerModule = require(SSS.Modules.Game.Hitbox)
-local FighterConfigModule = require(RS.Utils.FighterConfig)
-
--- Constants
-local CombatServiceConstants = require(RS.Shared.Services.CombatService.Constants)
-
--- active regen tasks to prevent multiple regen tasks from being created for the same character
-local activeRegenTasks: { [Model]: boolean } = {}
-
-local blockStartTimes: { [Model]: number } = {}
 
 -- Packages
 local Networker = require(RS.Packages.Networker)
 local DataService = require(RS.Packages.DataService).server
 local Janitor = require(RS.Packages.Janitor)
 
+-- Utils
+local FighterConfig = require(RS.Shared.Utils.FighterConfig)
+
+-- Constants
+local CombatServiceConstants = require(RS.Shared.Services.CombatService.Constants)
+
+local activeRegenTasks: { [Model]: boolean } = {} -- active regen tasks to prevent multiple regen tasks from being created for the same character
+local blockStartTimes: { [Model]: number } = {}
 local playerJanitors: { [Player]: typeof(Janitor.new()) } = {}
 
 local function getPlayerFighterConfig(player: Player)
 	local fighterName = DataService:get(player, { "selectedFighter" }) :: string
-	return FighterConfigModule.get(fighterName)
+	return FighterConfig.get(fighterName)
 end
 
 local function startBlockRegen(character: Model)

@@ -10,6 +10,9 @@ local Networker = require(RS.Packages.Networker)
 local Janitor = require(RS.Packages.Janitor)
 local DataService = require(RS.Packages.DataService).server
 
+-- Constants
+local GameServiceConstants = require(RS.Shared.Services.GameService.Constants)
+
 local loadingCharacter: { [Player]: boolean } = {}
 local fighterSelectionCooldowns: { [Player]: number } = {}
 local playerJanitors: { [Player]: typeof(Janitor.new()) } = {}
@@ -111,7 +114,7 @@ function GameServiceServer.SetFighterForPlayer(self: GameServiceServer, player: 
 			"ShowNotification",
 			"You cannot switch fighters while dead!",
 			"Please respawn before switching.",
-			3
+			GameServiceConstants.FIGHTER_SELECTION_NOTIFICATION_DURATION
 		)
 		return
 	end
@@ -122,7 +125,7 @@ function GameServiceServer.SetFighterForPlayer(self: GameServiceServer, player: 
 			"ShowNotification",
 			"You're already using this fighter!",
 			"Please select a different fighter.",
-			3
+			GameServiceConstants.FIGHTER_SELECTION_NOTIFICATION_DURATION
 		)
 		return
 	end
@@ -134,12 +137,12 @@ function GameServiceServer.SetFighterForPlayer(self: GameServiceServer, player: 
 			"ShowNotification",
 			"You're switching too quickly!",
 			`Wait {cooldown} seconds before retrying.`,
-			3
+			GameServiceConstants.FIGHTER_SELECTION_NOTIFICATION_DURATION
 		)
 		return
 	end
 
-	fighterSelectionCooldowns[player] = 5
+	fighterSelectionCooldowns[player] = GameServiceConstants.FIGHTER_SELECTION_COOLDOWN
 	task.spawn(function()
 		while fighterSelectionCooldowns[player] > 0 do
 			task.wait(1)

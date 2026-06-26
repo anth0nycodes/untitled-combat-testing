@@ -16,12 +16,10 @@ local character: Model
 local humanoid: Humanoid
 local playerGui = player.PlayerGui
 
--- Modules
-local FighterConfigModule = require(RS.Utils.FighterConfig)
-
 -- Utils
 local CharacterLoader = require(RS.Utils.CharacterLoader)
 local AnimationLoader = require(RS.Utils.AnimationLoader)
+local FighterConfig = require(RS.Shared.Utils.FighterConfig)
 
 -- Fighter Config
 local fighterConfig: FighterConfigTypes.FighterConfigType
@@ -69,7 +67,7 @@ local function updateBlockStat()
 end
 
 local function onCharacterAdded(newCharacter: Model, newHumanoid: Humanoid)
-	fighterConfig = FighterConfigModule.get()
+	fighterConfig = FighterConfig.get()
 	character = newCharacter
 	humanoid = newHumanoid
 	previousPlayerHealth = math.round(humanoid.Health)
