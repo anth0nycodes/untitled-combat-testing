@@ -53,7 +53,7 @@ Config.FighterConfig = {
 	MaxComboCount = 3,
 	Hitbox = {
 		HitboxType = "Box",
-		Size = Vector3.new(8, 8, 8),
+		Size = Vector3.new(5, 5, 3),
 		CFrame = CFrame.new(0, 0, -2.5),
 	} :: FighterTypes.BoxHitboxConfig,
 	WeaponName = "Katana",
