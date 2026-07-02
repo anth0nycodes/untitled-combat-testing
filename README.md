@@ -1,3 +1,5 @@
-# Untitled Combat Testing
+# Combat System
 
-A Roblox combat system game — currently a work in progress.
+A basic combat system in Roblox.
+
+![demo](./assets/combat-system.png)
